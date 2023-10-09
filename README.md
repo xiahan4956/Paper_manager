@@ -1,6 +1,6 @@
 # Introduction
-**"Perhaps this is a more straightforward alternative to Zotero and CiteSpace.**  
-**All the features are streamlined and easy to grasp."**
+**Perhaps this is a more straightforward alternative to Zotero and CiteSpace.**  
+**All the features are streamlined and easy to grasp.**
 
 ## main.py
 ![info](intro.gif)
@@ -34,4 +34,4 @@
 4. Execute `pip install -r requirements.txt` to install python packages.
 5. Use navicat open 'data/paper.db' and create a table. Then copy paper titles to this table.The title column name must be 'title'.
 6. Change .env.template to .env, and set PAPER_TABLE and MODEL,AI API_KEY
-7. Execute `python main.py` 
+7. Execute `main.py` 
