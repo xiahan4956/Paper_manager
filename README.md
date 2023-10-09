@@ -1,8 +1,11 @@
 # Introduction
-**"Perhaps this is a more straightforward alternative to Zotero and CiteSpace.**
+**"Perhaps this is a more straightforward alternative to Zotero and CiteSpace.**  
 **All the features are streamlined and easy to grasp."**
 
+## main.py
 ![info](intro.gif)
+
+## ask_paper.py
 ![ask_paper](ask_paper.gif)
 
 
