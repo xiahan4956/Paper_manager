@@ -5,8 +5,9 @@ import os
 dotenv.load_dotenv()
 
 
-CLAUDE_KEY = os.getenv("OPENAI_KEY")
+OPENAI_KEY = os.getenv("OPENAI_KEY")
 MODEL = os.getenv("MODEL")
+openai.api_key = OPENAI_KEY
 
 def ask_gpt(pmt):
     pmt = [{"role": "user","content":pmt}]
@@ -20,6 +21,7 @@ def ask_gpt(pmt):
             timeout = 10
             )
             idea =   res["choices"][0]["message"]["content"]
+            print(idea)
             
             return idea
         

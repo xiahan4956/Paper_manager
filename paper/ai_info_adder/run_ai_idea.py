@@ -30,7 +30,7 @@ def run_add_ai_idea():
         # Claude could input 10k works,so we could input the paper's meta data or content
         # But GPT could only input limited words,so we could only input the paper's meta data
         if "gpt" in MODEL:
-            paper_info = df.iloc[i]["title","abstarct"].to_csv()
+            paper_info = df.iloc[i][["title","abstract"]].to_csv()
         if "claude" in MODEL:
             paper_info = df.iloc[i][["title","abstract","content"]].to_csv()
             
