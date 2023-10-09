@@ -35,3 +35,4 @@
 5. Use navicat open 'data/paper.db' and create a table. Then copy paper titles to this table.The title column name must be 'title'.
 6. Change .env.template to .env, and set PAPER_TABLE and MODEL,AI API_KEY
 7. Execute `main.py` 
+8. If you have Claude api key,you could use ask_paper.py to ask any paper. Just put the paper in `paper.txt`
