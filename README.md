@@ -1,8 +1,17 @@
 # Introduction
 **"Perhaps this is a more straightforward alternative to Zotero and CiteSpace.**
 **All the features are streamlined and easy to grasp."**
-![info](intro.gif)
 
+![info](intro.gif)
+![ask_paper](ask_paper.gif)
+
+
+# What's the features?
+- Download: Download paper meta data(doi,abstarct,publish_year,if factor,citations) by titles.
+- Parse: Add any columns by AI (openai,cluade) parsing.
+- Analysis: Use community detection and centrality to analysis keywords.These algorithms are similar as the citepsace!
+- Detail asking: If you have Claude api,you could ask any paper.
+- Export: Export data to Excel.(Use navicat)
 
 # What's difference between this and Zotero?
 - You could auto download paper any data by titles. Zotero need doi.
@@ -13,12 +22,6 @@
 - The 'keywords analysis' uses AI to extarct keywords. But the way of Citespace operates as a black box.
 - Use community detection and centrality to analysis keywords.These algorithms are same as the citepsace.
 
-# What's the features?
-- Download: Download paper meta data(doi,abstarct,publish_year,if factor,citations) by titles.
-- Parse: Add any columns by AI (openai,cluade) parsing.
-- Analysis: Use community detection and centrality to analysis keywords.These algorithms are similar as the citepsace!
-- Detail asking: If you have Claude api,you could ask any paper.
-- Export: Export data to Excel.(Use navicat)
 
 # How to use
 1. You need to have openai api key or claude api key to parse paper.I recommend you to use Claude api key,which is free and support long text parsing.
