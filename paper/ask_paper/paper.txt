@@ -1,0 +1,596 @@
+The N-Tuple Bandit Evolutionary Algorithm
+for Game Agent Optimisation
+Simon M Lucas, Jialin Liu and Diego Perez-Liebana
+School of Electrical Engineering and Computer Science
+Queen Mary University of London
+London, UK
+Email: {simon.lucas, jialin.liu, diego.perez}@qmul.ac.uk
+Abstract —This paper describes the N-Tuple Bandit Evolution-
+ary Algorithm (NTBEA), an optimisation algorithm developed
+for noisy and expensive discrete (combinatorial) optimisation
+problems. The algorithm is applied to two game-based hyper-
+parameter optimisation problems. The N-Tuple system directlymodels the statistics, approximating the ﬁtness and number ofevaluations of each modelled combination of parameters. Themodel is simple, efﬁcient and informative. Results show that theNTBEA signiﬁcantly outperforms grid search and an estimation
+of distribution algorithm.
+Index T erms —Estimation of Distribution Algorithm, Evolu-
+tionary Algorithm, Hyper-Parameter Optimisation, Rolling Hori-
+zon Evolution, Game Playing Agent, Noisy Optimisation.
+I. I NTRODUCTION
+This paper describes the N-Tuple Bandit Evolutionary Al-
+gorithm (NTBEA) and its application to optimising the pa-rameters of a rolling horizon evolution game-playing agent.
+The NTBEA combines evolutionary search with Multi-ArmedBandit algorithms (MABs) in order to provide an algorithmwhich is robust to noise, has an explicit way to balance thetrade-off between exploration and exploitation, and provides
+a statistical model of the ﬁtness landscape as an additional
+output.
+The applications of this type of algorithm are numerous. In
+our research we have already applied it successfully to hyper-parameter optimisation [1] and automated game tuning [2].
+Furthermore, if the inherent ﬁtness landscape is ﬂat, then the
+exploration term provides a means for performing noveltysearch [3].
+A. Estimation of Distribution Algorithms
+Estimation of Distribution Algorithms (EDAs) [4], [5], [6],
+[7], [8] are a powerful class of Evolutionary Algorithms (EAs).Instead of using the mutation and crossover operators togenerate offspring from the ﬁttest parents, the population issampled from an estimated probability distribution of selectedindividuals, which is updated iteratively using the ﬁtnessevaluations of individuals. In addition to potentially makingthe search more efﬁcient and robust to noise, EDAs also havethe beneﬁt of learning a model which offers greater insight intothe nature of the problem. The model may provide informationregarding key parameter combinations that tend to lead to goodor bad solutions.The NTBEA models not only the ﬁtness of points in the
+search space, but also estimates how much each point has beenvisited. This enables explicit modelling of exploration, whichhas two distinct beneﬁts. First, it enables a principled way toavoid becoming trapped in local optima, since the search canbe diverted to less well explored areas. Second, it providesa natural way to perform a type of novelty search. This isespecially important when dealing with problems that involvea ﬂat reward landscape [9].
+B. Combinatorial Multi-Armed Bandits
+Rolet and Teytaud [10] modeled the sub-domains of the
+search space as arms of a bandit and allocated the computa-tional resource dynamically during the evaluation step of anevolution strategy for continuous noisy optimization. Whensearching in a discrete space, the NTBEA has signiﬁcant sim-ilarity to the Combinatorial Multi-Armed Bandits (CMABs),
+formalised by Gai et al. [11] and Chen et al. [12]. Gai et
+al. applied CMABs to a channel allocation problem in mo-
+bile communications, and showed how considering pair-wiseinteractions led to better performance than a naive univariatemodel, but their model was particular to resource allocation
+problems. The recent work of Ontañón [13] on CMABs is
+the closest to this paper. Ontañón used CMABs for multi-agent control in the microRTS game, a relatively simple buthighly challenging real-time strategy (RTS) game. Ontañón’sCMABs model each dimension of the search space as anindividual local MAB, in which each arm is a legal valueof the corresponding dimension, together with a global MABwith all the legal value combinations as arms. These valuecombinations are sometimes called macro-arms.
+C. N-Tuple Systems
+In this paper we use an N-Tuple system to model the
+ﬁtness landscape, and combine it with an evolutionary search
+algorithm. N-Tuple systems were ﬁrst developed and appliedto pattern recognition in the late 1950s [14], and among manyother applications have also been applied to model valuefunctions in games [15], [16]. The standard way of using an
+N-Tuple system is to model a high-dimensional feature space
+by considering a set of lower-dimensional projections of thatspace, deﬁned by the set of N-Tuples. Each N-Tuple forms aweak model of the space, but combining them provides a good
+978-1-5090-6017-7/18/$31.00 ©2018 IEEEmodel. There are some novel aspects of the N-Tuple systems
+used in this paper that will be described later in Section II.
+The notion of successively improving an individual or
+a population via variation operators and ﬁtness evaluationsmakes the NTBEA distinct from the standard CMAB methods.A CMAB operates via a pure bandit-based sampling proce-dure, whereas the approach described in this paper uses an
+evolutionary algorithm (EA) to perform the population gener-
+ation and variation, and a bandit landscape ﬁtness model (forbrevity called just the model or the model space) to performthe selection. In this paper an N-Tuple system is used as themodel, but other choices of model would also be possible. N-Tuple systems are a good choice due to their speed, simplicity,
+interpretability and reasonable accuracy. Essentially, the EA
+searches the model space to improve the sample efﬁciency inthe problem domain.
+In this paper, a variation of the (1,λ)-EA is used, in which
+the current best individual is selected as the parent only togenerate the next population of size λand is not included in
+the new population.
+The instance of the algorithm described in this paper is sim-
+ilar to the N-Tuple Bandit Evolutionary Algorithm introducedby Kunanusont et al. [2], extended from the Bandit-based
+Random Mutation Hill Climber [17]. Kunanusont et al. [2]
+applied the NTBEA to automatic game parameter tuning of atwo-player adversarial video game, a very noisy problem, assome stochastic AI agents were used to evaluate the evolvedstochastic games. The NTBEA signiﬁcantly outperformedtwo evolutionary algorithms, a simple Random Mutation Hill
+Climber and a univariate Bandit EA [2]. The NTBEA was
+also applied within the General Video Game AI (GVGAI [18])
+framework for evolving game rules and parameters, and hassuccessfully evolved variations of the game Aliens to favour
+either a short-term or a long-term planning agent [19].
+In this paper, we formalise the NTBEA, and present its
+applications for hyper-parameter optimisation. The NTBEAmakes use of the statistics of the previously evaluated solutionsand balances the trade-off between exploring a new (or lessevaluated) solution and exploiting the best one found sofar. The NTBEA is particularly useful when the evaluationfunction is expensive or noisy. For example, in the contextof automatic game design, a game needs to be played severaltimes to approximate an accurate win rate if the game or theagents are stochastic, while the execution time of a singlegame may take a signiﬁcant amount of time or it is difﬁcult toperform an evaluation. The notion of expensive in this context
+is clearly subjective, but really means any problem where theevaluation time is a signiﬁcant issue in the opinion of thealgorithm user.
+Using N-Tuples to approximate ﬁtness statistics and visit
+counts can be related to locally sensitive hashing (LSH), andit is worth noting how the N-Tuple system described in thispaper could also be used for enhancing exploration in videogames, similar to the way LSH in the form of Context TreeSwitching (CTS) was applied to boost performance on thechallenging game of Montezuma’s Revenge [20].D. Hyper-Parameter Optimisation
+The task of tuning the parameters of a game-playing agent
+can be viewed as a Hyper-Parameter Optimisation problem.
+Bergstra and Bengio [21] state how the most popular methods
+are Grid Search and manual search, but show how competitivethe performance of random search is for these problems.More recently the Hyperband paper [22] shows how recentapproaches such as Sequential Model-based Algorithm Con-ﬁguration (SMAC) [23] and Tree-structured Parzen Estimator
+(TPE; [24]) in some cases only perform similarly to randomsearch. They outperformed random search in a direct rank-based comparison, but only by a small margin. When the
+random search was repeated twice and the best solution waspicked, random search performed best [22] (albeit not quite afair comparison, but one that illustrates the small margin of
+improvement).
+The NTBEA approach has a similar overall algorithmic
+framework to SMAC [23], in the way a model is iteratively
+updated and used to decide which point in the search space to
+sample next. Where SMAC uses random forests for the model,the NTBEA uses N-Tuple systems. There are also signiﬁcantdifferences in the approaches; SMAC only estimates the valueof the objective function for each parameter conﬁguration,whereas NTBEA also estimates the visit count, which isessential for the bandit-based exploration pressure. There arealso some conceptual differences, with SMAC running Ttrials
+of each sample conﬁguration (via its INTENSIFY procedure)
+while by default NTBEA runs a single evaluation each time,in order to make maximum use of the bandit model.
+Other aspects of hyper-parameter optimisation in general
+involve early stopping of unpromising solutions, and alsosharing of the system parameters between competing solu-tions: both of these are used to great effect by Jadeberg et
+al[25]. Here we only consider when each solution is fully
+evaluated at least once, as in a complete game is played,though actually games could be abandoned very early whenone player is obviously weak. For now we note that thereare many approaches to hyper-parameter optimisation, but thatmanual and grid search are in strong use, and that randomsearch performs surprisingly well.
+The rest of this paper is structured as follows. Section II
+introduces the overall structure of the NTBEA. The test
+problem is described in Section III, then results are illustratedand discussed in Section IV. Section V concludes and listssome future work.
+II. T
+HE N-T UPLE BANDIT EVOLUTIONARY ALGORITHM
+In this section, we describe the system architecture of the
+algorithm and then explain each part in more detail. Figure 1illustrates the three key components of the NTBEA, a banditlandscape model, an evolutionary algorithm and a noisy evalu-
+ator, i.e., a ﬁtness function corrupted by noise. We assume that
+the execution time of querying the bandit landscape model isnegligible compared to evaluating a candidate solution on thetarget problem.
+2018 IEEE Congress on Evolutionary Computation (CEC)Fig. 1: Key components of the N-Tuple Bandit Evolutionary
+Algorithm (NTBEA). A model of the ﬁtness landscape is builtand updates iteratively using the evaluations of solutions. Thesearch for candidate solutions is performed in the model space,i.e., the N-Tuple Bandit Fitness Landscape model, wherecandidate solutions can be evaluated quickly (N-Tuple systemsare well known for their speed [26], and our experimentaltests support this). This is then sampled in the real (relativelyexpensive) problem search space, where the ﬁtness value is
+expected to be noisy. The model is then updated with theﬁtness value of this solution point. The process repeats until
+some termination condition is met.
+The algorithm works as follows. The search begins by
+sampling a single solution point uniformly at random in thesearch space. This search point is referred to as the current
+point . The ﬁtness of the current point is evaluated once, in
+the problem domain, using the noisy evaluator. In theory, noresampling is needed, even for noisy problems, since the UCBmodule in the algorithm aims to take care of re-evaluating an
+identical point if needed. Note that the algorithm also works
+for noise-free problems, though we focus on noisy problemsin this paper.
+The current point is then stored in the bandit ﬁtness land-
+scape model (referred to as the model from now on), together
+with its ﬁtness value. The model is then searched withinthe neighborhood of the current point. The neighborhood isdeﬁned using the number of neighbors and the proximitydistribution to the current point, which is controlled by amutation operator. The solution point in the neighborhoodwith the highest estimated Upper Conﬁdence Bounds value(UCB; deﬁned later in Section II-A) is then selected as thenew current point. The process iterates until the evaluationbudget is used up, or some other termination condition is met.The algorithm is described in Algorithm 1.
+Note that this description outlines the simplest approach
+where only a single solution is held as the current focus ofthe search, similar to using only one parent. Population-basedversions are also possible, and would be more appropriate forparallel hardware.
+A. Estimating UCB V alues: an N-Tuple Approach
+A key part of the algorithm is the value function used to
+sample in a large search space. In this context, large means that
+the size of the search space is larger than the number of ﬁtnessevaluations allowed, thus it is impossible to properly evaluate(proper evaluation may involve resampling due to noise) eachof the possible solutions points. Instead, we need to model therelationship between points in the search space and sampleaccordingly.The algorithm UCB1, a simple multi-armed bandit algo-
+rithm, is introduced by Auer et al. [27]. The UCB value of
+any armiis deﬁned as:
+UCB
+i=ˆXi+k/radicalbigg
+lnn
+ni+/epsilon1. (1)
+The empirical mean reward for playing arm iisˆXi: this is the
+exploitation term. The right hand term controls the exploration,wherenis the total number of times this bandit has been
+played, and n
+iis the number of times the arm ihas been
+played. The term kis called the exploration factor: higher
+values of klead to explorative search, low values lead to more
+greedy or exploitative search. Each dimension of the searchspace is modelled as an independent MAB, with an arm foreach possible value. The /epsilon1value is used to control whether
+each arm should be pulled at least once. In the standard UCB
+formula,/epsilon1is set to zero ensuring that each arm is pulled once
+in turn, but for our purposes this would be impractical, as themacro-arm consisting of the entire N-Tuple would force an
+exhaustive exploration of the search space.
+Additionally, we also model combinations of arms as super-
+bandits . For example, in a d-dimensional search space where
+each dimension has npossible values, the 10-wide super-
+bandit would have n
+darms.
+We modify this to be an aggregate over all the N-Tuples in
+theN-Tuple System model. Let Nbe theN-Tuple indexing
+function such that Nj(x)indexes the jthbandit for search
+space point x. Initially we compute the aggregate UCB value
+for solution point xas an unweighted arithmetic average, as
+deﬁned in (2):
+vUCB(x)=1
+mm/summationdisplay
+j=1UCB Nj(x), (2)
+wheremdenotes the total number of bandits in the system.
+More sophisticated algorithms are possible, for example by
+combining the individual outputs using a Bayesian method,
+but for simplicity and proof of concept we begin by using thearithmetic average.
+The N-Tuple systems have ideal properties for use as ﬁtness
+landscape models, in that they offer an extremely fast one-shottraining and good accuracy. They are ideally suited to mod-elling discrete spaces, but can also be applied to continuousspaces with some degree of compromise. In this paper we aredealing with discrete search spaces, so they are already a goodﬁt.
+The concept is as follows. Given a d-dimensional search
+space, we sub-sample its dimensions with a number of N-
+tuples. The value of Nranges from 1up tod, though may
+miss out values in between. If all the tuples were considered,then the total number of bandits is 2
+d.
+In the standard N-Tuple systems each entry in the look-up-
+table stores a single value for each class, normally related tothe probability of that index occurring given that class, or for
+game position value function approximation, the value of thatindex occurring.
+2018 IEEE Congress on Evolutionary Computation (CEC)Algorithm 1 The N-Tuple Bandit Evolutionary Algorithm.
+Require: S: search space
+Require: fitness : noisy solution evaluator
+Require: n∈N+: number of neighbors
+Require: p∈(0,1): mutation probability
+Require: flipOnce ∈{true,false }: ﬂip at least once or not
+Require: nbEvals : total number of evaluations allowed
+1:t=0 ⊿Counter for ﬁtness evaluations
+2:Model←∅⊿Initialise the ﬁtness landscape model
+3:current← a random point ∈S
+4:whilet < nbEvals do
+5:value←fitness(current)
+6: add< current,value > toLModel
+7: P opulation ← NEIGHBORS (Mo d e l ,c u r r e n t ,n ,p ,fl i p O n c e )
+8:current←argmax x∈P opulation vUCB(x)
+9:t←t+1
+10: returnLModel
+11: function NEIGHBORS (model,x,n,p,flipOnce )
+12:Population ←∅ ⊿Initialise empty set
+13:d←|x| ⊿Get the dimension
+14: fork∈{1,...,n}do
+15: neighbor ←x
+16: i←0
+17: ifflipOnce then
+18: i← randomly selected from {1,2,...,d}
+19: forj∈{1,...,d}do
+20: ifi==jthen
+21: Randomly mutate value of neighbor j
+22: else
+23: ifRAND < p then
+24: Randomly mutate value of neighbor j
+25: Addneighbor toPopulation
+26: returnPopulation
+In our model, however, each N-Tuple has a look-up table
+(LUT) that stores statistical summaries of the values it encoun-ters; the basic numbers stored are the number of samples, thesum of the ﬁtness of samples, and the sum of the square ofthe ﬁtness of the samples. This enables the mean, the standarddeviation and the standard error to be calculated for each entryin the table. This provides all we need for (1) and (2), and
+beyond: calculating the mean, standard deviation or standard
+error for each parameter combination being modelled providesuseful insight into the nature of the system under optimisation.
+B. Algorithm
+The NTBEA algorithm is outlined in Algorithm 1 and
+operates as follows. It begins by choosing a random solutionpoint in the search space, which is called the current point.Since we are dealing with discrete search spaces, each pointis represented as a vector of integers, where each elementof the vector is an index to the currently selected value inthat dimension. The actual value chosen may be of any type,
+common types are integer, double and boolean.
+The following steps are then repeated until the ﬁtness
+evaluation budget has been exhausted:
+•It makes a (noisy) ﬁtness evaluation of the current pointand stores it in the N-Tuple Fitness Landscape Modelas the value for that solution point (lines 5 and 6 inAlgorithm 1).
+•Using a mutation operator to generate a set of unique
+neighbors of the current solution, as the population of
+current iteration (line 7).
+•Using the ﬁtness landscape model, the algorithm calcu-lates the estimated UCB value of each solution by (1)and (2). Then, it sets the current solution as the one inthe population (neighbors from the previous step) with
+the highest estimated UCB value (line 8).
+When the ﬁtness evaluation budget has been exhausted, the
+method searches and recommends a neighbor of all of the
+evaluated solutions, in which each dimension is set to the valuewith maximal approximate value deﬁned in (2).
+C. Illustrative Example
+Consider a 5-dimensional space, modeled using ﬁve 1-tuples
+and one5-tuple. Suppose we now enter the four vectors (three
+unique) in the search space together with their associatedﬁtness values as given in Table Ia.
+The ﬁrst 1-tuple will have a LUT that has 2 entries, with
+LUT[0∗∗∗∗]having a mean of 1, and LUT[1∗∗∗∗]
+having a mean of
+2
+3. The single 5-tuple will have three non-
+empty entries, with LUT[12340] having a mean of 0.5, and
+LUT[11111] andLUT[00110] both having means of 1. Note
+that the object at each index is a statistical summary object asdescribed above that does not directly store the mean but cancalculate it; we describe the mean value to best illustrate the
+operation, and because it feeds directly into (1) and (2). Anexample of some of the statistics that are stored in the systemor can be calculated directly is shown in Table Ib.
+In this example only the empirical average and the number
+of evaluations is output for each index of each N-tuple, though
+as mentioned previously the standard deviation and standarderror are also available. For each N-tuple, only the non-null
+table entries are shown, i.e., ones in which the index (can alsobe thought of as a pattern) occurs at least once.
+III. N
+OISY OPTIMISA TION OF GAME AGENT PARAMETERS
+This section describes an application to optimising the
+parameters of a rolling horizon evolutionary game-playingagent. The agent is optimised to get as high average score on
+the game as possible. This is a noisy optimisation problemwith two distinct sources of noise: (i) the game itself isstochastic; (ii) the optimised agent follows a stochastic policy,
+such that given the same game state, it may play differentlyif simulating more than once.
+The behavior of the agent is controlled by a number of
+parameters, some of which may have a critical effect on
+2018 IEEE Congress on Evolutionary Computation (CEC)T ABLE I: Illustrative example, in which only 1-tuples and
+d-tuple are considered ( d=5 ).
+(a) Evaluated solutions (entries) and corresponding ﬁtness values.
+Solution ﬁtness
+[1,2,3,4,0] 1
+[1,1,1,1,1] 1
+[0,0,1,1,0] 1
+[1,2,3,4,0] 0
+(b) Some of the statistics that are stored in the system or can be
+calculated directly.
+N-tuple Pattern Mean Nb. of eval.
+1-tuple[0,∗,∗,∗,∗] 11
+[1,∗,∗,∗,∗]2
+33
+[∗,0,∗,∗,∗] 11
+[∗,1,∗,∗,∗] 11
+[∗,2,∗,∗,∗]1
+22
+[∗,∗,1,∗,∗] 12
+[∗,∗,3,∗,∗]1
+22
+[∗,∗,∗,1,∗] 12
+[∗,∗,∗,4,∗]1
+22
+[∗,∗,∗,∗,0]2
+33
+[∗,∗,∗,∗,1] 11
+5-tuple[0,0,1,1,0] 11
+[1,1,1,1,1] 11
+[1,2,3,4,0]1
+22
+the performance of the agent, and where the combination of
+parameter values is important.
+The problem addressed is similar to the hyper-parameter
+optimisation problem that is topical in machine learning; it hasbeen shown many times that optimising a known architecturecan produce state of the art results (e.g., [24], [21]).
+A. Rolling Horizon Evolutionary Agent
+We aim to optimise the parameters of a rolling horizon
+evolutionary agent. Rolling Horizon Evolutionary Algorithms(RHEAs) are called rolling horizon as each of the individuals
+in the population is an action sequence of a ﬁxed planning(time) horizon, h
+p, thus RHEAs plan ahead hpactions. On
+each subsequent game step, the horizon rolls one step further
+within the hpwindow. Every individual is evaluated by evalu-
+ating the state after simulating hpactions in its corresponding
+sequence or earlier, if a termination state is reached beforeperforming all the h
+pactions. Then, only the ﬁrst action of
+the best individual is applied. This procedure repeats with theupdated state.
+The rolling horizon technique can be integrated to differ-
+ent evolutionary algorithms such as Genetic Algorithms andCoevolutionary Algorithms [28]. In this work, we combined
+a simple (1+1) -EA with rolling horizon . This agent will be
+referred to as RHEA in the rest of the paper.
+The performance of RHEAs can be boosted in many ways.
+For instance, recently, RHEAs have been applied to General
+Video Game Playing, and proved that the population size and
+sequence length (i.e., planning horizon) had signiﬁcant effecton the performance of the algorithms [29], [30], [31]. Someof the key parameters are
+•sequence length : planning horizon;•shift buffer enabled or not: if disabled, at any timestep
+t+1 , the initial population is reset to random, otherwise,
+each of the individuals from the population at timestept(previous optimisation procedure) shifts its action se-
+quence forward and ﬁlls the last position by a randomaction;
+•resampling number : in the stochastic case, how many
+time an individual is re-evaluated (equals to 1if no re-
+evaluation is allowed).
+•mutation probability : how likely a mutation occurs at
+every dimension;
+•ﬂip at least one bit : indicates if at least one mutation
+should occur at each time.
+B. Test Problems
+We optimise the rolling horizon evolutionary agent to play
+two games: simpliﬁed Java implementations of Asteroids andPlanet Wars. In these test cases, the RHEA agent model
+sequences of actions in next game ticks as its individuals, andevolve the individuals over time aiming at maximising some
+ﬁtness value.
+1) Asteroids: Asteroids, released to great acclaim in 1979
+is one of the classic video games of all time, and Atari’smost proﬁtable
+1. The original game was implemented in
+special vector graphics hardware, featured memorable soundeffects and smooth physics-based movements. The challengefor players is to avoid being hit by asteroids, while aiming atthem accurately and to also hit the ﬂying saucers before theyhit the player’s spaceship. There are three sizes of asteroids:large, medium and small. Each screen starts with a numberof large rocks: as each one is hit either by the player, or bya missile ﬁred by an enemy ﬂying saucer, it splits in to asmaller one: large rocks split into two medium ones, mediuminto two small ones, small ones disappear. There is also ascore progression, with the score per rock increasing as thesize decreases.
+Strong play requires good perceptual and motor skills for
+avoiding collisions and shooting accurately at the targets.There are also some interesting strategies which may easily
+elude novice players. One of them is to control the number ofasteroids on the screen by shooting one large one at a time,then picking off a single medium rock and each small one itgives rise to, before breaking another large rock.
+The largest score for any item is the 1,000 points awarded
+for shooting the small ﬂying saucer. These ﬁre at the playerwith deadly accuracy, so it is important to shoot them quicklyas the missiles they ﬁre are fast moving and tricky to avoid.Many strong players will shoot all but one remaining asteroid(a small one) and then lie in wait for ﬂying saucers at theedge of the screen, ﬁring at them immediately as soon as theyappear. There is some devil in the detail here, regarding thebest place to wait and the best angle to ﬁre at (the screen
+wraps around both vertically and horizontally, so from a single
+position it is possible to shoot at both sides).
+1https://en.wikipedia.org/wiki/Asteroids_(video_game)
+2018 IEEE Congress on Evolutionary Computation (CEC)For our experiments we used a Java implementation of the
+game where we can simulate the game 10,000 times faster
+than the real game. Although using the ALE or MAME versionof the game would have been possible, there are some distinctadvantages to having our own implementation:
+•It runs much faster than the ALE or MAME versions.
+•Having access to the source code makes it straightforwardto vary details of the game in order to test varioushypotheses. For example, we can test the effects of penal-ising each missile ﬁred, or giving the large and mediumrocks zero value to test the long-term planning ability ofthe agents under test. An example is the use of the two-player version of this implementation in automatic gameparameter tuning [32].
+In this simpliﬁed version, there are at each time twelve legal
+actions at each game tick, being a combination of the three
+steer actions ( LEFT ,CENTER ,RIGHT ), and whether the ship
+is thrusting ( THRUST ) and / or ﬁring ( FIRE ). Unlike the
+original game there is no HYPERSPACE action. The player
+starts with 0as game score and 3lives, and an additional
+life every 10,000 points. The player gets 200 ,100 or50
+points every time it hit an large, medium or small asteroid,respectively, and loses 10points for every missile ﬁred. Losing
+a life has a penalty of −200 points. The game stops when all
+lives are lost, or 1,000 game ticks have elapsed. Currently
+there are no ﬂying saucers, but we plan to add this feature forthe next set of experiments.
+Figure 2a gives a screenshot of the game screen. Pink lines
+illustrate the simulations of the RHEA agent which controls
+the spaceship; these are shown for illustrative purposes only,and ignore the fact that each rollout involves other changes tothe game state such as ﬁring missiles and the rocks movingand splitting.
+2) Planet Wars: Planet Wars is a simple but challenging
+Real Time Strategy game that was run as a highly successfulGoogle Game AI Challenge in 2011 by the University ofWaterloo in Canada. For the work in this paper we imple-mented a simpler version of the game to make it faster to allow
+rapid running of experiments while retaining some challenging
+aspects of the original game. The game runs at more than 10
+million game ticks per second.
+The aim game of Planet Wars is to occupy all the planets,
+where each planet is occupied either by player 1, player 2, orby a neutral. Each planet has a number of ships belonging tothe owner of the planet. To invade a planet a player sends anumber of ships to the planet to be invaded from the planet
+it owns. For our experiments we used an implementation with
+the following rules:
+•No neutral planets: the ships on each planet are eitherowned by player 1 or player 2.
+•At each game tick, a player moves by shifting ships toor from a player’s ship buffer, or by moving it’s current
+planet of focus .
+•When a player transfers ships it is always between it’s
+buffer and the current planet of focus.•At each game tick the score for each player is the sumof all the ships on each planet it owns, plus the shipsstored in it’s buffer. We have two versions of the game:the easiest for the planning agents, and the one used inthis paper also adds in the ships in a player’s buffer toit’s score, a more deceptive version of the game does notinclude this.
+For research purposes, the advantage of the modiﬁed action
+space is that it makes it compatible with the General VideoGame AI framework, giving direct access to a large numberof game-playing agents for comparison purposes.
+IV . A
+PPLICA TIONS AND RESUL TS
+We aim to optimise the parameters of the RHEA agent
+(described in Section III-A) with NTBEA and two baselinealgorithms, Grid Search and a multi-valued version of theSliding Window compact Genetic Algorithm (SWcGA), an
+EDA proposed by Lucas et al. [33] recently.
+2The NTBEA
+used in the experiments takes into account all the d1-tuples,
+d(d−1)
+22-tuples and the only d-tuple.
+A. Experimental Setting
+1) Fitness Function: In each case the ﬁtness function is
+based on the outcome of a single game, which leads to noisyﬁtness functions.
+a) Asteroids: The evaluation function is the game score
+when the game terminates, the higher the better. The calcu-lation of the game score is explained in Section III-B1. Thevalue ofkshould be set relative to the score distribution; for
+Asteroids kwas set to 5,000 .
+b) Planet Wars: The evaluation function is based on
+playing a single game, with a value of +1 if the agent wins
+or−1for a loss, and 0for a draw (which is very unlikely to
+occur). This gives an extremely noisy ﬁtness function. Notethat an optimiser can choose to resample a particular point inthe search space, i.e., playing multiple games using the agentwith an identical parameter setting, in order to get an estimateof win rate. However, with a ﬁxed small evaluation budget,the optimiser will run fewer iterations compared to samplingexactly one.
+The NTBEA optimises the parameters of a RHEA agent
+controlled as player 1, versus a ﬁxed-parameter version of theRHEA with well-chosen parameters based on the authors’
+experience playing as player 2. The game is symmetric andthe planning budget for both players was set to 2,000 game
+ticks. For Planet Wars, the value of kin the NTBEA was set
+to 1.0.
+2) Search Space: TheRHEA agent is characterised by the
+parameters shown in Table II, where each one is given a type
+and legal values. The parameters have been detailed previouslyin Section III-A. The mutation probability for a d-dimensional
+problem is calculated by nbMutatedPoints/d .
+2The original Compact Genetic Algorithm (cGA) and the sliding window
+version described by Lucas et al. [33] only handled binary strings. The version
+used in this paper handles integer strings and can use absolute or relative
+ﬁtness measures; the version used here used absolute ﬁtness measures.
+2018 IEEE Congress on Evolutionary Computation (CEC)T ABLE II: Search space of the parameter settings.
+V ariable Type Legal values
+sequenceLengthAsteroids Integer 5,10,15,20,50,100,150
+Planet Wars Integer 5,10,15,20,50
+nbMutatedPoints Integer 0.0,1.0,2.0,3.0
+flipAtLeastOneBit boolean false,true
+useShiftBuffer boolean false,true
+nbResamples Integer 1,2,3
+TheRHEA agent is very ﬂexible and allows any compat-
+ible evolutionary algorithm to be plugged in to control theevolutionary process. For these experiments we used a Ran-dom Mutation Hill Climber / (1+1) -Evolutionary Algorithm
+(the distinction between the two depends on the parameterschosen by the hyper-parameter optimiser).
+The search space of the parameter settings is actually the
+search space of RHEA instances, while every RHEA given a
+parameter setting is considered as a distinct instance. As shownin Table II, the size of the search space, in other words, totalnumber of possible RHEA instances, when playing Asteroids
+and Planet Wars, is 336 and240 , respectively.
+3) Budget: We allowed an optimisation budget of the same
+value as the size of search space, thus 336 game evaluations
+in the case of Asteroids and 240 in the case of Planet Wars.
+Note that a “game evaluation” refers to a whole game playing,which lasts at most 1,000 game ticks. At each game tick, the
+playing agent RHEA has a budget of 2,000 forward model
+calls (simulations) to ﬁnd an optimal action to play. Given that
+there are 336 and240 points in the search space of the two
+games, this means an attempted uniform Grid Search cannoteven sample each point twice. The NTBEA works by buildingup statistics for each value in each individual dimension, aswell as tuples of values, and the full-width n-tuple. Hence the
+optimiser is able to make good use of the gathered information.
+B. Results
+Each of the three optimisation algorithms, Grid Search,
+SWcGA and NTBEA, are given the same budget to optimise aRHEA agent on each of the games. The recommended agent
+instance at the end of an optimisation is validated by playing100 games. NTBEA was run with a neighborhood-size of 50,
+and SWcGA with a sliding window of size 50.
+Table III analyses the average ﬁtness value obtained by
+theRHEA instances recommended by three tested algo-
+rithms over 10 optimisation trials on Asteroids and Planet
+War.RHEA
+GridSearch ,RHEA SWcGA andRHEA NTBEA
+denote the RHEA agent instance recommended at the end of
+optimisation by Grid Search, SWcGA and NTBEA, respec-tively. A random agent, which uniformly randomly selectsan action at every game tick, is also tested for comparison.Unsurprisingly, the random agent performs poorly both ingames.
+Given the same budget, the NTBEA signiﬁcantly outper-
+forms the baseline algorithms, Grid Search and SWcGA.Of the three, Grid Search is by far the worst. TheWilcoxon Signed-Rank Test was run for signiﬁcance betweenT ABLE III: Average ﬁtness value over 10 optimisation trials.
+Standard error is given after ±. Note that in the case of Planet
+War, an average of 0refers to a win rate of 50% .
+Agent Planet Wars Asteroids
+Random -0.9400±0.3400 1,091 ±88
+RHEA GridSearch -0.53±0.12 7,716 ±330
+RHEA SWcGA 0.39±0.07 8,439 ±110
+RHEA NTBEA 0.54±0.02 8,756 ±41
+RHEA SWcGA andRHEA NTBEA , establishing a signiﬁ-
+cance difference between the measures with p=0.01928
+for Planet Wars. The results for Asteroids follow a normaldistribution under the Shapiro-Wilk Normality Test, and thedifference between RHEA
+SWcGA andRHEA NTBEA is
+signiﬁcant with a student t-test p-value of 0.040131 .
+In addition to the results presented in Table III the authors
+have also made many other test runs with various evaluationbudgets, both higher and lower than the budgets used forthe table, and in all the tests made so far the NTBEA has
+outperformed the SWcGA, and also outperformed grid searchwhere applicable (grid search was not applied to cases wherethe budget was smaller than the number of points in the searchspace). A more thorough set of experiments, including oneswith much larger search spaces is on-going work.
+Figure 2b is an illustration of the plot of game score in
+real-time by the program to show how score varies over theplanning horizon of the algorithm.
+C. Solutions F ound
+The best solutions found showed common traits for both
+games, but with some signiﬁcant differences. The best solu-tions always used the shift buffer, and set nResamples to
+1. Flipping a bit was normally preferred, and a large valueofnbMutatedPoints of 2.0 or 3.0 gave best performance.
+The best sequence length for Planet Wars was either 10 or 20,and for Asteroids a sequence length of 100 worked best; the
+big difference in performance for various parameter settingsdemonstrates the importance and impact of undertaking ef-fective parameter tuning. The output of the NTBEA providesclear statistics on the parameter combinations that were tested,
+but these run in to pages of output. We are currently developinggraphical tools to convey this information in a more convenient
+form.
+V. C
+ONCLUSION AND FUTURE WORK
+In this paper, we propose an N-Tuple Bandit Evolution-
+ary Algorithm (NTBEA), combining the strength of N-Tuple
+systems, multi-armed bandit algorithms and evolutionary al-
+gorithms. The proposed approach is compared to two baselinealgorithm, Grid Search and Sliding Window compact Ge-netic Algorithm, on a hyper-parameter optimisation problem:evolving a rolling horizon evolutionary game-playing agent.
+NTBEA signiﬁcantly outperformed the baseline algorithms,and provides an explicit control over exploitation versus ex-ploration.
+2018 IEEE Congress on Evolutionary Computation (CEC)(a) Screenshot of the game screen of Asteroids. Polygons represent
+asteroids. Solid rectangle represents the spaceship, and pink lines
+illustrate the simulations of the rolling horizon evolutionary agentwhich controls the spaceship. Red solid circulars represent bullets
+ﬁred by the spaceship.
+(b) Real-time plots showing how the score varies over the planninghorizon of the algorithm. The ﬁgure shows 10 plots, each of length
+100 with a different color. Each of the plots refers to a simulationin Figure 2a.
+Fig. 2: Screenshot of the game screen of Asteroids and real-time plot of game scores in the simulations.
+The next step is the application of the NTBEA to more
+expensive problems, such as optimising some game-playing
+agents for playing the 2-player games in the General VideoGame AI framework [34]. To ensure the stable performance,the 2-player agent should be evaluated by simulating multi-ples games against multiple opponent models, which will be
+computationally expensive. Additional, it will be challenging
+to test the NTBEA on larger search space, not only in termsof the dimension number but also the number of legal actionson each of the dimensions.
+One thing worth taking into account but not considered
+in this paper explicitly is the prior knowledge on the de-pendencies between dimensions. As mentioned previously in
+Section II, if all the tuples were considered, the number of
+bandits increases exponentially. Though the use of tuples takescare of the potential dependencies and it is not necessary toconsider all the tuples, we still need to decide in advance whichare the ones to be included in the model (e.g., all the possible
+1-tuples,2-tuples and the single d-tuple were included in our
+test case). Some prior knowledge on the problem can facilitatethis selection step and reduces the amount of memory requiredby NTBEA.
+The comparison between the NTBEA and other EDAs will
+be interesting, and more generally a comparison betweenNTBEA and a wide range of existing hyper-parameter optimi-
+sation algorithms such as SMAC. It should be noted though
+that many of the latter algorithms are not set up to handleextremely noisy ﬁtness functions such as the games used inthis paper.
+In summary, the NTBEA is a signiﬁcant new algorithm
+that has been shown to work well both for automated gametuning, and now for optimising a game playing agent on twovery different games. The algorithm is well suited to problemswhere the ﬁtness function is noisy and expensive, gives good
+performance, and provides useful statistics on the contributionof each combination of parameters as a consequence of theunderlying N-Tuple model.
+R
+EFERENCES
+[1] C. F. Sironi, J. Liu, D. Perez-Liebana, R. D. Gaina, I. Bravi, S. M.
+Lucas, and M. H. Winands, “Self-adaptive mcts for general video game
+playing,” in European Conference on the Applications of Evolutionary
+Computation . Springer, 2018.
+[2] K. Kunanusont, R. D. Gaina, J. Liu, D. Perez-Liebana, and S. M. Lucas,
+“The n-tuple bandit evolutionary algorithm for automatic game improve-
+ment,” in Evolutionary Computation (CEC), 2017 IEEE Congress on .
+IEEE, 2017.
+[3] J. Lehman and K. O. Stanley, “Abandoning objectives: Evolution through
+the search for novelty alone,” Evolutionary Computation , no. 2, pp. 198
+– 223, 2011.
+[4] H. Mühlenbein and G. Paass, “From recombination of genes to the esti-
+mation of distributions i. binary parameters,” in International conference
+on parallel problem solving from nature . Springer, 1996, pp. 178–187.
+[5] P . Larrañaga and J. A. Lozano, Estimation of distribution algorithms: A
+new tool for evolutionary computation . Springer Science & Business
+Media, 2001, vol. 2.
+[6] C. González, J. A. Lozano, and P . Larranaga, “Mathematical modeling
+of discrete estimation of distribution algorithms,” in Estimation of
+Distribution Algorithms . Springer, 2002, pp. 147–163.
+[7] J. A. Lozano, Towards a new evolutionary computation: advances on
+estimation of distribution algorithms . Springer Science & Business
+Media, 2006, vol. 192.
+[8] M. Hauschild and M. Pelikan, “An introduction and survey of estima-
+tion of distribution algorithms,” Swarm and Evolutionary Computation ,
+vol. 1, no. 3, pp. 111–128, 2011.
+[9] J. Decock and O. Teytaud, “Noisy optimization complexity under local-
+ity assumption,” in Proceedings of the twelfth workshop on F oundations
+of genetic algorithms XII . ACM, 2013, pp. 183–190.
+[10] P . Rolet and O. Teytaud, “Bandit-based estimation of distribution al-
+gorithms for noisy optimization: Rigorous runtime analysis.” in LION .
+Springer, 2010, pp. 97–110.
+[11] Y . Gai, B. Krishnamachari, and R. Jain, “Learning multiuser channel
+allocations in cognitive radio networks: A combinatorial multi-armedbandit formulation,” in New Frontiers in Dynamic Spectrum, 2010 IEEE
+Symposium on . IEEE, 2010, pp. 1–9.
+2018 IEEE Congress on Evolutionary Computation (CEC)[12] W . Chen, Y . Wang, and Y . Y uan, “Combinatorial multi-armed bandit:
+General framework and applications,” in International Conference on
+Machine Learning , 2013, pp. 151–159.
+[13] S. Ontanón, “Combinatorial multi-armed bandits for real-time strategy
+games,” Journal of Artiﬁcial Intelligence Research , vol. 58, pp. 665–702,
+2017.
+[14] W . W . Bledsoe and I. Browning, “Pattern recognition and reading by
+machine,” in Proceedings of the Eastern Joint Computer Conference ,
+1959, pp. 232 – 255.
+[15] S. M. Lucas, “Learning to Play Othello with N-Tuple Systems,” Aus-
+tralian Journal of Intelligent Information Processing , vol. 4, pp. 1–20,
+2008.
+[16] T. P . Runarsson and S. M. Lucas, “Preference learning for move
+prediction and evaluation function approximation in othello,” IEEE
+Transactions on Computational Intelligence and AI in Games , vol. 6,
+no. 3, pp. 300–313, 2014.
+[17] J. Liu, D. Pérez-Liébana, and S. M. Lucas, “Bandit-based random
+mutation hill-climbing,” in Evolutionary Computation (CEC), 2017
+IEEE Congress on . IEEE, 2017, pp. 2145–2151.
+[18] D. Perez-Liebana, S. Samothrakis, J. Togelius, S. M. Lucas, and
+T. Schaul, “General Video Game AI: Competition, Challenges and
+Opportunities,” in Thirtieth AAAI Conference on Artiﬁcial Intelligence ,
+2016, pp. 4335–4337.
+[19] D. Perez-Liebana, J. Liu, and S. M. Lucas, “General video game AI as
+a tool for game design,” Tutorial at IEEE Conference on Computational
+Intelligence and Games (CIG), 2017.
+[20] M. Bellemare, S. Srinivasan, G. Ostrovski, T. Schaul, D. Saxton,
+and R. Munos, “Unifying count-based exploration and intrinsic
+motivation,” in Advances in Neural Information Processing
+Systems 29 , D. D. Lee, M. Sugiyama, U. V . Luxburg,
+I. Guyon, and R. Garnett, Eds. Curran Associates, Inc.,
+2016, pp. 1471–1479. [Online]. Available: http://papers.nips.cc/paper/
+6383-unifying-count-based-exploration-and-intrinsic-motivation.pdf
+[21] J. Bergstra and Y . Bengio, “Random search for hyper-parameter opti-
+mization,” Journal of Machine Learning Research , vol. 13, no. Feb, pp.
+281–305, 2012.
+[22] L. Li, K. Jamieson, G. DeSalvo, A. Rostamizadeh, and A. Talwalkar,
+“Hyperband: A novel bandit-based approach to hyperparameter opti-mization,” arXiv preprint arXiv:1603.06560 , 2016.
+[23] F. Hutter, H. H. Hoos, and K. Leyton-Brown, “Sequential model-based
+optimization for general algorithm conﬁguration,” in Proceedings of
+LION 5 , 2011, pp. 507 – 523.[24] J. S. Bergstra, R. Bardenet, Y . Bengio, and B. Kégl, “Algorithms
+for hyper-parameter optimization,” in Advances in Neural Information
+Processing Systems , 2011, pp. 2546–2554.
+[25] M. Jaderberg, V . Dalibard, S. Osindero, W . M. Czarnecki, J. Donahue,
+A. Razavi, O. Vinyals, T. Green, I. Dunning, K. Simonyan,C. Fernando, and K. Kavukcuoglu, “Population based training of neural
+networks,” CoRR , vol. abs/1711.09846, 2017. [Online]. Available:
+http://arxiv.org/abs/1711.09846
+[26] R. Rohwer and M. Morciniec, “A theoretical and experimental account
+of n-tuple classiﬁer performance,” Neural Computation , vol. 8, no. 3,
+pp. 629–642, 1996.
+[27] P . Auer, N. Cesa-Bianchi, and P . Fischer, “Finite-time analysis of the
+multiarmed bandit problem,” Machine learning , vol. 47, no. 2-3, pp.
+235–256, 2002.
+[28] J. Liu, D. Pérez-Liébana, and S. M. Lucas, “Rolling horizon coevolu-
+tionary planning for two-player video games,” in Computer Science and
+Electronic Engineering (CEEC), 2016 8th . IEEE, 2016, pp. 174–179.
+[29] R. D. Gaina, J. Liu, S. M. Lucas, and D. Pérez-Liébana, “Analysis
+of vanilla rolling horizon evolution parameters in general video game
+playing,” in European Conference on the Applications of Evolutionary
+Computation . Springer, 2017, pp. 418–434.
+[30] R. D. Gaina, S. M. Lucas, and D. Pérez-Liébana, “Population seeding
+techniques for rolling horizon evolution in general video game playing,”
+inEvolutionary Computation (CEC), 2017 IEEE Congress on . IEEE,
+2017, pp. 1956–1963.
+[31] R. D. Gaina, S. M. Lucas, and D. Perez-Liebana, “Rolling horizon evo-
+lution enhancements in general video game playing,” in Computational
+Intelligence and Games (CIG), 2017 IEEE Conference on . IEEE, 2017,
+pp. 88–95.
+[32] J. Liu, J. Togelius, D. Pérez-Liébana, and S. M. Lucas, “Evolving
+game skill-depth using general video game ai agents,” in Evolutionary
+Computation (CEC), 2017 IEEE Congress on . IEEE, 2017, pp. 2299–
+2307.
+[33] S. M. Lucas, J. Liu, and D. Pérez-Liébana, “Efﬁcient noisy optimisation
+with the multi-sample and sliding window compact genetic algorithms,”
+inComputational Intelligence (SSCI), 2017 IEEE Symposium Series on .
+IEEE, 2017.
+[34] R. D. Gaina, A. Couetoux, D. J. N. J. Soemers, M. H. M. Winands,
+T. V odopivec, F. Kirchge βner, J. Liu, S. M. Lucas, and D. Perez-Liebana,
+“The 2016 two-player GVGAI competition,” IEEE Transactions on
+Computational Intelligence and AI in Games , 2017.
