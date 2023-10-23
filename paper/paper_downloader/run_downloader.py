@@ -60,7 +60,7 @@ def run_paper_downloader():
             continue
 
         # check database whether has the content column
-        cheak_and_add_content_column(conn, df)
+        cheak_and_add_content(conn, df)
 
         # download paper text.if success, save to database
         content = download_content(df, i, driver)
@@ -70,7 +70,7 @@ def run_paper_downloader():
             
     print("paper text download finish")
 
-def cheak_and_add_content_column(conn, df):
+def cheak_and_add_content(conn, df):
     df = pd.read_sql_query(f'select * from {PAPER_TABLE}', conn)
     if ("content" not in df.columns) or ("content_words" not in df.columns) :
         cursor = conn.cursor()

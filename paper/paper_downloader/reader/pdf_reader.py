@@ -1,4 +1,5 @@
 import datetime
+from io import BytesIO
 import os
 
 import PyPDF2
@@ -11,7 +12,8 @@ def dose_have_new_pdf(data_path, initial_files):
     start_time = datetime.datetime.now()
 
     while True:
-        current_files = set([f for f in os.listdir(data_path) if f.endswith('.pdf')])
+        current_files = set(
+            [f for f in os.listdir(data_path) if f.endswith('.pdf')])
         new_files = current_files - initial_files
 
         if new_files:
@@ -35,26 +37,22 @@ def read_pdf(new_files, data_path):
     return content
 
 
-def read_pdf_by_url(url, data_path):
+def read_pdf_by_url(url):
     try:
-        print("Starting to download PDF using wget")
-        
+        print("Starting to download PDF using requests")
         print("Download URL:" + url)
-        save_path = os.path.join(data_path, "temp.pdf")
-        wget.download(url, out=save_path, bar=wget.bar_adaptive)
-            
-        with open(save_path, "rb") as f:
-            pdf_reader = PyPDF2.PdfReader(f)
-            content = ""
-            for page in pdf_reader.pages:
-                content += page.extract_text()
 
-        # Clear all files in data_path
-        for f in os.listdir(data_path):
-            os.remove(os.path.join(data_path, f))
         
+        response = requests.get(url, stream=True)
+        memory_file = BytesIO(response.content)
+
+        pdf_reader = PyPDF2.PdfReader(memory_file)
+        content = ""
+        for page in pdf_reader.pages:
+            content += page.extract_text()
+
     except Exception as e:
-        print("Failed to download PDF using wget:", e)
+        print("Failed to download or read PDF:", e)
         content = ""
 
     return content

@@ -30,8 +30,14 @@ def meta_adder_run():
     df = pd.read_sql(f"select * from {PAPER_TABLE}",con=conn)
 
     for i in tqdm(range(len(df))):
+        if "publish_year" in df.columns:
+            if pd.notnull(df.loc[i,"publish_year"]):
+                continue
+
         df = add_meta_data(df,i)
         df = add_if_factor(df,i)
+
+        df.to_sql(f"{PAPER_TABLE}",con=conn,if_exists="replace",index=False)
    
     # add citation
     df = add_citations(df)

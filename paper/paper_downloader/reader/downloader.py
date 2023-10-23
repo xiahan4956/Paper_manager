@@ -3,6 +3,7 @@ import sys
 
 sys.path.append(os.getcwd())
 
+from utils.claude import ask_claude
 from utils.google_search import get_google_serach_list
 from paper.paper_downloader.reader.pdf_reader import *
 from paper.paper_downloader.reader.research_gate import *
@@ -12,48 +13,81 @@ from scihub_cn.scihub import *
 
 
 
-def download_content(df, i, driver, data_path = os.path.join(os.getcwd(),"temp")):
-    # 定义字段
+def is_paper_link(title, page_title):
+    pmt  = '''
+            I am using the  paper title to download paper content by google search.
+            Please help me to check whether the  search title is mapping the paper.
+            Please think in <think></think> xml tag fisrt then answer 
+            if you think the search title is mapping the paper, please answer True, otherwise False
+            <page_title>
+            {page_title}
+            </page_title>
+            <title>
+            {title}
+            </title>
+            Return 
+            ```
+            res: <bool>
+            ```
+            '''.format(page_title=page_title,title=title)
+
+    idea = ask_claude(pmt)
+
+    try:
+        idea = re.search(r"res:.*",idea).group(1)
+    except Exception as e:
+        print("claude answer error",e)
+
+    # if claude answer False, skip this paper
+    if "False" in idea:
+        return False
+    else:
+        return True
+
+
+
+def download_content(df, i, driver):
+
     doi = df.loc[i, 'doi']
     title = df.loc[i, 'title']
-    
-    # 清空data_path
-    while True:
-        try:
-            for file in os.listdir(data_path):
-                os.remove(os.path.join(data_path,file))
-            break
-        except Exception as e:
-            time.sleep(10)
-            print(e)
-            pass
-
-    # 先尝试直接用doi下载scihub
     content = ""
+    
+
+    # Try to download from scihub by doi
     if pd.notnull(doi):
-        content = get_scihub_content_by_doi(doi,data_path,driver)
+        content = get_scihub_content(doi,driver)
     if content:
         print("scihub download succuess:",str(len(content)))
         return content
 
-    # 不行再尝试用谷歌搜索
+    # If scihub fails, try to download from google search to find some avilaible soucre
     driver.get(f'https://www.google.com/search?q={title}')
     search_list = get_google_serach_list(driver)
     
     for search_res in search_list:
-       # 解析本身的pdf
+        page_title = search_res["title"]
+       # Google have some special results which are pdf url 
         if search_res["url"].endswith(".pdf"):
-            content = read_pdf_by_url(search_res["url"],data_path)
+            
+            # cheak pdf page is acutally mapping title
+            if not is_paper_link(title, page_title):
+                continue
+            
+            content = read_pdf_by_url(search_res["url"])
             if content:
-                print("pdf通过url下载成功:",str(len(content)))
+                print("pdf download success",str(len(content)))
                 return content
  
-         # 再看get_arxiv_content_by_url
+         # arxiv also have pdf url
         if "arxiv" in search_res["url"]:
-            content = get_arxiv_content_by_url(search_res["url"],driver,data_path)
+            # cheak pdf page is acutally mapping title
+            if not is_paper_link(title, page_title):
+                continue
+
+            content = get_arxiv_content_by_url(search_res["url"],driver)
             if content:
-                print("arxiv下载成功:",str(len(content)))
+                print("arxiv download success",str(len(content)))
                 return content 
      
-    print("content没有能够下载",title)
-    return ""
+
+    return content
