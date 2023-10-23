@@ -1,7 +1,16 @@
+import re
 import pandas as pd
 import requests
+import os
+import sys
+sys.path.append(os.getcwd())
 
+from utils.claude import ask_claude
+from utils.gpt import ask_gpt
 
+import dotenv
+dotenv.load_dotenv()
+MODEL = os.getenv("MODEL")
 
 
 def add_meta_data(df,i):
@@ -18,6 +27,16 @@ def add_meta_data(df,i):
 
     res = res.json()["hits"][0]
 
+
+    #  To ensure the accuracy of the match,cheak doi actually mapping title.
+    idea = cheak_mapping_title(df, i, res)  
+    try:
+        if "False" in idea:
+            return df
+    except Exception as e:  
+        print(e)
+        print("claude return error")
+
      
     df.loc[i,"doi"] = res["doi"]
     df.loc[i,"journal"] = res["journal"]
@@ -27,6 +46,38 @@ def add_meta_data(df,i):
 
 
     return df
+
+def cheak_mapping_title(df, i, res):
+    mapping_title = res["title"]
+    pmt = '''
+    Background:
+    I am matching papers based on their titles.
+    <title> is the original paper title.
+    <mapping title> is the matched paper title.
+    To ensure the accuracy of the match,please verify if they are the same paper.
+    If the paper is the same,You return True,else return False.
+
+    You should think in <think></think> xml tag first
+
+    <title>
+    {title}
+    <title>
+    
+    <mapping title>
+    {mapping_title}
+    </mapping title>
+
+
+    RETURN
+    res: <bool>
+    
+    '''.format(title = df.loc[i,'title'],mapping_title = mapping_title)
+    
+    if "claude" in MODEL:
+        idea = ask_claude(pmt)
+    if "gpt" in MODEL:
+        idea = ask_gpt(pmt)
+    return idea
 
 
 
