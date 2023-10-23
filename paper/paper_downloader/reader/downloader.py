@@ -4,6 +4,7 @@ import sys
 sys.path.append(os.getcwd())
 
 from utils.claude import ask_claude
+from utils.gpt import ask_gpt
 from utils.google_search import get_google_serach_list
 from paper.paper_downloader.reader.pdf_reader import *
 from paper.paper_downloader.reader.research_gate import *
@@ -14,6 +15,8 @@ from scihub_cn.scihub import *
 import dotenv
 dotenv.load_dotenv()
 MODEL = os.getenv("MODEL")
+
+
 
 
 
