@@ -25,7 +25,12 @@ def add_meta_data(df,i):
             print("scite.ai search fail")
             print(e)
 
-    res = res.json()["hits"][0]
+    try:
+        res = res.json()["hits"][0]
+    except Exception as e:
+        print("scite.ai search fail")
+        print(e)
+        return df
 
 
     #  To ensure the accuracy of the match,cheak doi actually mapping title.
