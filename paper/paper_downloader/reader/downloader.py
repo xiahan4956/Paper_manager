@@ -3,6 +3,8 @@ import sys
 
 sys.path.append(os.getcwd())
 
+from paper.paper_downloader.reader.ieee import get_ieee_content_by_url
+from paper.paper_downloader.reader.springer import get_springer_content_by_url
 from utils.claude import ask_claude
 from utils.gpt import ask_gpt
 from utils.google_search import get_google_serach_list
@@ -100,6 +102,25 @@ def download_content(df, i, driver):
             if content:
                 print("arxiv download success",str(len(content)))
                 return content 
-                 
+
+        # Use beihang carsi to download content
+        # IEEE
+        if "ieee" in search_res["url"]:
+            # cheak pdf page is acutally mapping title
+            if not is_paper_link(title, page_title):
+                continue
+            content = get_ieee_content_by_url(search_res["url"],driver)
+            print("ieee下载成功:",str(len(content)))
+            return content
+
+        # springer
+        if "springer" in search_res["url"]:   
+            # cheak pdf page is acutally mapping title
+            if not is_paper_link(title, page_title):
+                continue
+            content = get_springer_content_by_url(search_res["url"],driver)
+            print("springer下载成功:",str(len(content)))
+            return content
+  
 
     return content

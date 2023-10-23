@@ -1,14 +1,14 @@
 import time
 from selenium import webdriver
-
+import random
 
 def load_driver():
     
     for _ in range(5):
         try:
             driver = webdriver.Chrome()
-            driver.set_window_size(1200,900)
-            driver.set_window_position(0,0)
+            driver.set_window_position(3000 - random.randint(0,1500),random.randint(0,500))
+            driver.set_window_size(1000,900)
             break
         except Exception as e:
             print("Lunch chrome fail.Retry",e)

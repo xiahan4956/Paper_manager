@@ -44,10 +44,10 @@ def process_paper(i):
     conn = sqlite3.connect('data/paper.db')
 
     df = pd.read_sql_query(f'select * from {PAPER_TABLE}', conn)
-   
-    driver = load_driver()
     if skip(df, i):
         return
+   
+    driver = load_driver()
    
     content = download_content(df, i, driver)
     if content:

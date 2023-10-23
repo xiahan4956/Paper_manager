@@ -27,6 +27,8 @@ def run_add_ai_idea():
     # Then,add ai idea to each paper
     for i in tqdm(range(len(df))):
         # get paper info. 
+        
+
         # Claude could input 10k works,so we could input the paper's meta data or content
         # But GPT could only input limited words,so we could only input the paper's meta data
         if "gpt" in MODEL:
@@ -50,4 +52,5 @@ def run_add_ai_idea():
     print(f"add ai idea to paper done")
     
 if __name__ == "__main__":
-    run_add_ai_idea()
+    while True:
+        run_add_ai_idea()
