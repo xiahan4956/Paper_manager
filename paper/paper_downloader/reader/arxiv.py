@@ -6,7 +6,7 @@ from paper.paper_downloader.reader.pdf_reader import dose_have_new_pdf, read_pdf
 
 from selenium.webdriver.common.by import By
 
-def get_arxiv_content_by_url(url, driver, data_path):
+def get_arxiv_content_by_url(url, driver):
 
     driver.get(url)
     try:
@@ -15,6 +15,6 @@ def get_arxiv_content_by_url(url, driver, data_path):
     except:
         pdf_url = driver.current_url
     
-    content = read_pdf_by_url(pdf_url,data_path)
+    content = read_pdf_by_url(pdf_url)
 
     return content

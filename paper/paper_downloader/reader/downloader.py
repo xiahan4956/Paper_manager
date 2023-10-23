@@ -11,6 +11,10 @@ from paper.paper_downloader.reader.scihub import *
 from paper.paper_downloader.reader.arxiv import *
 from scihub_cn.scihub import *
 
+import dotenv
+dotenv.load_dotenv()
+MODEL = os.getenv("MODEL")
+
 
 
 def is_paper_link(title, page_title):
@@ -19,22 +23,29 @@ def is_paper_link(title, page_title):
             Please help me to check whether the  search title is mapping the paper.
             Please think in <think></think> xml tag fisrt then answer 
             if you think the search title is mapping the paper, please answer True, otherwise False
+
             <page_title>
             {page_title}
             </page_title>
+
             <title>
             {title}
             </title>
+
             Return 
             ```
-            res: <bool>
+            res: True of False
             ```
-            '''.format(page_title=page_title,title=title)
 
-    idea = ask_claude(pmt)
+            '''.format(page_title=page_title,title=title)
+    
+    if  "claude" in MODEL:
+        idea = ask_claude(pmt)
+    elif "gpt" in MODEL:
+        idea = ask_gpt(pmt)
 
     try:
-        idea = re.search(r"res:.*",idea).group(1)
+        idea = re.search("res: (.*)", idea).group(1)
     except Exception as e:
         print("claude answer error",e)
 
@@ -47,12 +58,10 @@ def is_paper_link(title, page_title):
 
 
 def download_content(df, i, driver):
-
     doi = df.loc[i, 'doi']
     title = df.loc[i, 'title']
     content = ""
     
-
     # Try to download from scihub by doi
     if pd.notnull(doi):
         content = get_scihub_content(doi,driver)
@@ -88,6 +97,6 @@ def download_content(df, i, driver):
             if content:
                 print("arxiv download success",str(len(content)))
                 return content 
-     
+                 
 
     return content
