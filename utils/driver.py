@@ -7,6 +7,7 @@ def load_driver():
     for _ in range(5):
         try:
             driver = webdriver.Chrome()
+
             driver.set_window_size(1200,900)
             driver.set_window_position(0,0)
             break

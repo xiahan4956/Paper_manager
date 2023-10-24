@@ -41,6 +41,7 @@ def save_content_to_database(conn, df, i, content):
 
 
 def process_paper(i):
+
     conn = sqlite3.connect('data/paper.db')
 
     df = pd.read_sql_query(f'select * from {PAPER_TABLE}', conn)
@@ -49,11 +50,19 @@ def process_paper(i):
     if skip(df, i):
         return
    
-    content = download_content(df, i, driver)
-    if content:
-        save_content_to_database(conn, df, i, content)
+    while True:
+        try:
+            content = download_content(df, i, driver)
+            if content:
+                save_content_to_database(conn, df, i, content)
+            break
+        except Exception as e:
+            print("download content error", e)
+            
     conn.close()
     driver.quit()
+
+
 
 
 def cheak_and_add_content_colums_in_table(conn, df):
@@ -81,4 +90,10 @@ def run_paper_downloader():
 
 
 if __name__ == "__main__":
-    run_paper_downloader()
+    while True:
+        try:
+            run_paper_downloader()
+            break
+        except Exception as e:
+            print("paper downloader error", e)
+            

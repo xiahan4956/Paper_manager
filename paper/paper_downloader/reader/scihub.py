@@ -44,6 +44,24 @@ def get_scihub_content(doi,driver):
             return content
         except:
             pass
+
+        # anthor type of showing
+        try:
+            href = driver.find_element(By.XPATH,"//button[text() =  '↓ save']").get_attribute("onclick")
+            pdf_url = re.search(r'href=\'(.*?pdf)', href).group(1) 
+            if pdf_url.startswith("//"):
+                pdf_url = "https:" + pdf_url
+            if pdf_url.startswith("/"):
+                pdf_url = "https://sci-hub.se" + pdf_url
+            content = read_pdf_by_url(pdf_url)
+            print("Obtained content from SciHub using Selenium.")        
+            return content
+        except:
+            pass
+
+
+
+
         
         # anthor type of showing
         try:

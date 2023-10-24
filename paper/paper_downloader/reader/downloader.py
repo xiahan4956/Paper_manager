@@ -43,7 +43,7 @@ def is_paper_link(title, page_title):
             '''.format(page_title=page_title,title=title)
     
     if  "claude" in MODEL:
-        idea = ask_claude(pmt)
+        idea = ask_claude(pmt,model="claude-instant-1")
     elif "gpt" in MODEL:
         idea = ask_gpt(pmt)
 

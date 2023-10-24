@@ -12,7 +12,7 @@ MODEL = os.getenv("MODEL")
 
 from anthropic import Anthropic, HUMAN_PROMPT, AI_PROMPT
 
-def ask_claude(content):
+def ask_claude(content,model="claude-2"):
     client = Anthropic(api_key = CLAUDE_KEY)    
     prompt=f"{HUMAN_PROMPT}{content}{AI_PROMPT}"
     
@@ -20,9 +20,9 @@ def ask_claude(content):
         try:
             response = client.completions.create(
                 prompt=prompt,
-                model=MODEL,
+                model=model,
                 temperature = 0,
-                max_tokens_to_sample = 500
+                max_tokens_to_sample = 1000
             )
             break
         except Exception as e:

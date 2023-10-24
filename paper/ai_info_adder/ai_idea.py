@@ -26,30 +26,20 @@ def get_paper_idea(paper_info,quesion):
     {paper_info}
     </paper_info>
     
-    {question}
-    
-    Return:
-    ```
-    <res>
-    your answer
-    </res>
-    ```
-
+    以上是论文的信息,请你回答下面的问题.
+    问题是:{question}
+    回答时,详细的写出答案,中文回答
     '''.format(paper_info=paper_info,question=quesion)
 
+
     # Then ask 
+    print("pmt:"+str(len(pmt)))
     if "claude" in MODEL:
         answer = ask_claude(pmt)
     if "gpt" in MODEL:
         answer = ask_gpt(pmt)
     
-    # Next, we need to parse the answer,mutiline
-    try:
-        idea = re.search("<res>(.*?)</res>",answer,re.S).group(1)
-    except Exception as e:
-        print("parse ieas fail")
-        idea = ""
-    
-    return idea
+
+    return answer
     
 
