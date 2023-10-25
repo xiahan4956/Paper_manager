@@ -35,7 +35,6 @@ def run_add_ai_idea():
         if "content" in df.columns:
             if pd.isnull(df.loc[i,"content"]):
                 continue
-
         # Claude could input 10k works,so we could input the paper's meta data or content
         # But GPT could only input limited words,so we could only input the paper's meta data
         if "gpt" in MODEL:
@@ -76,3 +75,6 @@ def run_add_ai_idea():
 if __name__ == "__main__":
     while True:
         run_add_ai_idea()
+
+
+        
