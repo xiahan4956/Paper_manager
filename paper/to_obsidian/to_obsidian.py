@@ -14,7 +14,7 @@ PAPER_TABLE = os.getenv("PAPER_TABLE")
 
 # 读取sqllite数据库
 conn = sqlite3.connect("data/paper.db")
-df = pd.read_sql_query("SELECT * FROM {} limit 130".format(PAPER_TABLE), conn)
+df = pd.read_sql_query("SELECT * FROM {} LIMIT -1  offset 130".format(PAPER_TABLE), conn)
 
 # 把字段导入到obsidian
 def clean_limited_filename(title, max_length=200):
@@ -47,13 +47,13 @@ for i in tqdm(range(len(df))):
 
     doi = df.loc[i]["doi"]
     journal = df.loc[i]["journal"]
-    abstract = df.loc[i]["abstract"]
+    abstract = str(df.loc[i]["abstract"]).replace("#","")
     clean_year = df.loc[i]["clean_year"]
     publisher = df.loc[i]["publisher"]
     sci = df.loc[i]["sci"]
     sciif = df.loc[i]["sciif"]
     citations = df.loc[i]["citations"]
-    content = df.loc[i]["content"]
+    content = str(df.loc[i]["content"]).replace("#","")
     content_words = df.loc[i]["content_words"]
     idea = df.loc[i]["idea"]
     title_cn = df.loc[i]["title_cn"]

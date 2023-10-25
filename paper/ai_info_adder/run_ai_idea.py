@@ -40,16 +40,17 @@ def run_add_ai_idea():
         if "gpt" in MODEL:
             paper_info = df.iloc[i][["title","abstract"]].to_csv(escapechar='\\')
         if "claude" in MODEL:
-            paper_info = df.iloc[i][["title","abstract","content"]].to_csv(escapechar='\\')[0:80000]
+            paper_info = df.iloc[i][["title","abstract","cont uent"]].to_csv(escapechar='\\')[0:80000]
             
         # get ai idea
-        q1 = '''具体说说要解决的问题和实现方案吧.
+
+        q1 = "请详细的说明,文章最想表达的观点是什么,结果是什么,举出具体的数据."
+        idea1 = get_paper_idea(paper_info,q1)
+        q2 = '''具体说说要解决的问题和实现方案吧.
                 - 先用面向新手的描述,再用专业的描述论文实现过程.
                 - 面向新手的描述是 简单容易懂的话,一点专业术语都不加
                 - 专业的话指论文使用的描述手法
                 - 结合文中的游戏例子描述,要足够生动'''
-        idea1 = get_paper_idea(paper_info,q1)
-        q2 = "请详细的说明,文章最想表达的观点是什么,结果是什么,举出具体的数据."
         idea2 = get_paper_idea(paper_info,q2)
         q3 = '''请详细的说明,文章的方法的名字,如何运作.并且指出最关键的方法'''
         idea3 = get_paper_idea(paper_info,q3)
