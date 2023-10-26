@@ -33,6 +33,8 @@ class CarsiGetter:
                 except Exception as e:
                     self.driver.refresh()
                     print(e)
+            time.sleep(5)
+            # switch to  iframe id="loginIframe"
             self.driver.switch_to.frame("loginIframe")
 
             #input#unPassword
