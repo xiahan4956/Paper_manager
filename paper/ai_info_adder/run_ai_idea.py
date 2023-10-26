@@ -40,10 +40,9 @@ def run_add_ai_idea():
         if "gpt" in MODEL:
             paper_info = df.iloc[i][["title","abstract"]].to_csv(escapechar='\\')
         if "claude" in MODEL:
-            paper_info = df.iloc[i][["title","abstract","cont uent"]].to_csv(escapechar='\\')[0:80000]
+            paper_info = df.iloc[i][["title","abstract","content"]].to_csv(escapechar='\\')[0:80000]
             
         # get ai idea
-
         q1 = "请详细的说明,文章最想表达的观点是什么,结果是什么,举出具体的数据."
         idea1 = get_paper_idea(paper_info,q1)
         q2 = '''具体说说要解决的问题和实现方案吧.

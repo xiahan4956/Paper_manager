@@ -22,7 +22,7 @@ def ask_claude(content,model="claude-2"):
                 prompt=prompt,
                 model=model,
                 temperature = 0,
-                max_tokens_to_sample = 1000
+                max_tokens_to_sample = 10000
             )
             break
         except Exception as e:
