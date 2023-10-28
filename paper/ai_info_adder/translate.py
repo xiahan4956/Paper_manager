@@ -27,6 +27,10 @@ def run_translation():
         if "content_cn" in df.columns:
             if pd.notnull(df.loc[i,"content_cn"]):
                 continue
+
+        if "content_cn" in df.columns:
+            if len(df.loc[i,"content"]) > 80000: 
+                continue
         
         # 翻译摘要
         abstarct_en = str(df.loc[i,"abstract"])
@@ -73,8 +77,7 @@ def run_translation():
 
 
 if __name__ == "__main__":
-    while True:
-        run_translation()
+    run_translation()
 
 
         

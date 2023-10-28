@@ -8,8 +8,8 @@ def load_driver():
         try:
             driver = webdriver.Chrome()
 
-            driver.set_window_size(1200,900)
-            driver.set_window_position(0,0)
+            # driver.set_window_size(1000,900)
+            driver.set_window_position(random.randint(1500,3000),random.randint(0,1000))
             break
         except Exception as e:
             print("Lunch chrome fail.Retry",e)

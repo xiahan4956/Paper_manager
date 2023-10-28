@@ -40,28 +40,29 @@ def save_content_to_database(conn, df, i, content):
             time.sleep(10)
 
 
-def process_paper(i):
 
-    conn = sqlite3.connect('data/paper.db')
+def process_chunk(chunk):
+    conn = sqlite3.connect('data/paper.db', timeout=20)
 
     df = pd.read_sql_query(f'select * from {PAPER_TABLE}', conn)
-    if skip(df, i):
-        return
-   
-            
+    
     driver = load_driver()
-   
-    while True:
-        try:
-            content = download_content(df, i, driver)
-            if content:
-                save_content_to_database(conn, df, i, content)
-            break
-        except Exception as e:
-            print("download content error", e)
-            
-    conn.close()
+
+    for i in tqdm(chunk):
+        if skip(df, i):
+            continue
+
+        while True:
+            try:
+                content = download_content(df, i, driver)
+                if content:
+                    save_content_to_database(conn, df, i, content)
+                break
+            except Exception as e:
+                print("download content error", e)
+                
     driver.quit()
+    conn.close()
 
 
 
@@ -76,6 +77,19 @@ def cheak_and_add_content_colums_in_table(conn, df):
         print("add content column to database")
 
 
+def chunk_indices(indices, n):
+    """将indices分割成n个块。"""
+    avg = len(indices) // n
+    out = []
+    last = 0.0
+
+    while last < len(indices):
+        out.append(indices[int(last):int(last + avg)])
+        last += avg
+
+    return out
+
+
 def run_paper_downloader():
     print("now download paper text")
 
@@ -83,9 +97,11 @@ def run_paper_downloader():
     df = pd.read_sql_query(f'select * from {PAPER_TABLE}', conn)
     cheak_and_add_content_colums_in_table(conn, df)
     
+    indices = range(len(df))
+    chunks = chunk_indices(indices, PROCESS_NUM)
+
     with Pool(PROCESS_NUM) as pool:
-        indices = range(len(df))
-        list(tqdm(pool.imap(process_paper, indices), total=len(df)))
+        list(tqdm(pool.imap(process_chunk, chunks), total=len(chunks)))
 
     print("paper text download finish")
 

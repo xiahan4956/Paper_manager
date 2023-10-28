@@ -29,3 +29,7 @@ def ask_gpt(pmt):
             print(e)
             time.sleep(1)
 
+
+
+if __name__ == "__main__":
+    ask_gpt(123)
